@@ -1,31 +1,21 @@
 package com.desle.main;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.desle.bookcomposer.BookComposer;
 import com.desle.modals.Modal;
 import com.desle.modals.ModalHandler;
-
-import net.md_5.bungee.api.ChatColor;
 
 public class Main extends JavaPlugin {
 	
 	
 	@Override
-	public void onEnable() {		
+	public void onEnable() {
 		for (Player player : Bukkit.getOnlinePlayers()) {
-//			BookMeta bookMeta = (BookMeta) Bukkit.getItemFactory().getItemMeta(Material.WRITTEN_BOOK);
-//			bookMeta.addPage(
-//					BookComposer.centerLine(ChatColor.ITALIC + "" + ChatColor.DARK_AQUA + "*- Quest Complete -*", ' ')
-//					+ "\n" + BookComposer.center(ChatColor.BLACK + "On Our Way to Sanctuary")
-//					+ "\n" + BookComposer.center(ChatColor.DARK_GRAY + "With the pocketwatch in hand, Brick's buzzards on your side, you are now ready to storm Control Core Angel.")
-//					);
-//			BookComposer.openBook(player, bookMeta);
-//			
+			
 			new Modal(player, new ModalHandler() {
 				
 				@Override
@@ -33,12 +23,39 @@ public class Main extends JavaPlugin {
 					player.sendMessage(result);
 				}
 			});
+			
 		}
 	}
 	
 	
 	@Override
 	public void onDisable() {
+	}
+
+	
+	@Override
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+		if (!label.equalsIgnoreCase("finishmodal"))
+			return false;
+		
+		if (!(sender instanceof Player))
+			return false;
+		
+		if (args == null || args.length == 0)
+			return false;
+		
+		String result = args[0];
+		Player player = (Player) sender;
+		
+		Modal modal = Modal.openModals.get(player.getUniqueId());
+		
+		if (modal == null)
+			return false;
+		
+		modal.getModalHandler().callback(result);
+		
+		return true;
+		
 	}
 	
 	

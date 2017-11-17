@@ -37,13 +37,16 @@ public class Modal {
 		return this.uuid;
 	}
 	
+	public ModalHandler getModalHandler() {
+		return this.modalHandler;
+	}
+	
 	
 	public boolean open() {
 		BookMeta bookMeta = (BookMeta) Bukkit.getItemFactory().getItemMeta(Material.WRITTEN_BOOK);
 		
 		List<TextComponent> textComponents = new ArrayList<TextComponent>();
-		textComponents.add(this.modalHandler.constructOption("Yes", "yes", false));
-		textComponents.add(this.modalHandler.constructOption("No", "no", true));
+		textComponents.add(this.modalHandler.constructOptions());
 		
 		List<IChatBaseComponent> pages = new ArrayList<IChatBaseComponent>();
 		pages.add(BookComposer.createPage(textComponents));
