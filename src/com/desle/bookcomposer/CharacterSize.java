@@ -1,4 +1,4 @@
-package com.desle.modals;
+package com.desle.bookcomposer;
 
 public enum CharacterSize {
     A('A', 3),
@@ -96,7 +96,8 @@ public enum CharacterSize {
     PERIOD('.', 1),
     COMMA(',', 1),
     SPACE(' ', 1.8),
-    DEFAULT('a', 3);
+    DEFAULT('a', 3),
+    UTF_CHAR_1('⪤', 2.5);
     
     private char character;
     private double size;
@@ -117,63 +118,12 @@ public enum CharacterSize {
     
     public double getBoldSize(){
         if(this == CharacterSize.SPACE) return this.getSize();
-        return this.size + 1;
+        return (this.size + 1);
     }
     
     public static double getLineSize() {
     	return lineSize;
-    }
-    
-    
-    public static String center(String string, char character) {
-    	CharacterSize characterSize = CharacterSize.getCharacterSize(character);
-    	
-    	double remainingCharacterSpace = getRemainingCharacterSpace(string) / 2;
-    	double x = remainingCharacterSpace;
-    	
-    	while (characterSize.getSize() <= remainingCharacterSpace - characterSize.getSize()) {
-			string = characterSize.getCharacter() + string + characterSize.getCharacter();
-			remainingCharacterSpace -= characterSize.getSize();
-			x += characterSize.getSize();
-    	}
-
-    	while (CharacterSize.SPACE.getSize() <= remainingCharacterSpace - CharacterSize.SPACE.getSize()) {
-			string = CharacterSize.SPACE.getCharacter() + string;
-			remainingCharacterSpace -= CharacterSize.SPACE.getSize();
-			x += CharacterSize.SPACE.getSize();
-    	}
-    	System.out.println(remainingCharacterSpace + " / " + x);
-    	
-    	return string;
-    }
-    
-    
-	public static boolean canInline(String string, String addition) {
-		double maxSize = getLineSize();
-		double size = getStringSize(string + addition);
-		
-		if (size > maxSize)
-			return false;
-			
-		return true;
-	}
-	
-	
-	public static double getRemainingCharacterSpace(String string) {
-		return (CharacterSize.getLineSize() - getStringSize(string));
-	}
-	
-	
-	public static double getStringSize(String string) {
-		int size = 0;
-		for (int x = 0; x < string.length(); x++) {
-			size += CharacterSize.getCharacterSize(string.charAt(x)).getSize();
-		}
-		
-		return size;
-	}
-    
-    
+    }  
     
     public static CharacterSize getCharacterSize(char c){
         for(CharacterSize dFI : CharacterSize.values()){
