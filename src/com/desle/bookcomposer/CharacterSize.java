@@ -95,7 +95,7 @@ public enum CharacterSize {
     TICK('`', 1.5),
     PERIOD('.', 1),
     COMMA(',', 1),
-    SPACE(' ', 1.8),
+    SPACE(' ', 2),
     UTF_1('⥼', 2),
     UTF_2('⥽', 2),
     UTF_3('⟝', 4),

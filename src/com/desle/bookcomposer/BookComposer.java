@@ -51,7 +51,7 @@ public class BookComposer {
 	
 	
 	@SuppressWarnings("unchecked")
-	public static BookMeta addPages(List<IChatBaseComponent> newPages, BookMeta bookMeta) {
+	public static BookMeta addPages(BookMeta bookMeta, List<IChatBaseComponent> newPages, int index) {
 		List<IChatBaseComponent> pages;
 		
 		//get the pages
@@ -62,20 +62,9 @@ public class BookComposer {
 		    return bookMeta;
 		}
 		
-		pages.addAll(newPages);
-		
+		pages.addAll(index, newPages);
+			
 		return bookMeta;
-	}
-	
-	
-	public static TextComponent createTextComponent(String text, ChatColor chatColor, boolean italic, boolean underlined, boolean strikethrough) {
-		TextComponent textComponent = new TextComponent(text);
-		textComponent.setColor(chatColor);
-		textComponent.setItalic(italic);
-		textComponent.setUnderlined(underlined);
-		textComponent.setStrikethrough(strikethrough);
-		
-		return textComponent;
 	}
 	
 	
@@ -174,7 +163,7 @@ public class BookComposer {
 			remainingCharacterSpace -= CharacterSize.SPACE.getSize();
     	}
     	
-    	return string + "\n";
+    	return " " + string + "\n";
     }
     
     

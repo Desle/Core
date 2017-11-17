@@ -1,3 +1,4 @@
 eclipse.preferences.version=1
 encoding//src/com/desle/bookcomposer/CharacterSize.java=UTF-8
-encoding//src/com/desle/modals/ModalHandler.java=UTF-8
+encoding//src/com/desle/modals/modalhandlers/ModalHandler.java=UTF-8
+encoding//src/com/desle/modals/modalhandlers/QuestModalHandler.java=UTF-8
