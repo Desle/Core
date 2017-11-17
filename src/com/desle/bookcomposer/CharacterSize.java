@@ -97,7 +97,11 @@ public enum CharacterSize {
     COMMA(',', 1),
     SPACE(' ', 1.8),
     DEFAULT('a', 3),
-    UTF_CHAR_1('⪤', 2.5);
+    UTF_CHAR_1('⪤', 2.5),
+	UTF_CHAR_2('⤜', 4),
+	UTF_CHAR_3('⤛', 4),
+	UTF_CHAR_4('⨵', 2.5),
+	UTF_CHAR_5('⨴', 2.5);
     
     private char character;
     private double size;
