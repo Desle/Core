@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftMetaBook;
@@ -17,6 +16,7 @@ import com.desle.colors.ChatColorUtils;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.minecraft.server.v1_12_R1.IChatBaseComponent;
@@ -68,6 +68,17 @@ public class BookComposer {
 	}
 	
 	
+	public static TextComponent createTextComponent(String text, ChatColor chatColor, boolean italic, boolean underlined, boolean strikethrough) {
+		TextComponent textComponent = new TextComponent(text);
+		textComponent.setColor(chatColor);
+		textComponent.setItalic(italic);
+		textComponent.setUnderlined(underlined);
+		textComponent.setStrikethrough(strikethrough);
+		
+		return textComponent;
+	}
+	
+	
 	public static IChatBaseComponent createPage(List<TextComponent> textComponents) {
 		String string = "[";
 		
@@ -107,6 +118,18 @@ public class BookComposer {
 		lines.add(centerLine(line, ' '));
 		
 		return StringUtils.join(lines, "");
+	}
+	
+	
+	public static String centerAndReplace(String string, String replacement) {
+		string = center(string);
+		String result = string.replace(string.trim(), replacement);
+		
+		if (string.trim().length() > replacement.length() && !result.contains("\n"))
+			result += "\n";
+		
+		return result;
+		
 	}
 	
 	
@@ -179,12 +202,6 @@ public class BookComposer {
 			ChatColor chatColor = ChatColorUtils.getColor(string, x);
 			
 			if (chatColor != null) {
-				if (chatColor == ChatColor.BOLD)
-					bold = true;
-				
-				if (chatColor.isColor())
-					bold = false;
-
 				x += 1;
 			} else {
 				if (bold) {

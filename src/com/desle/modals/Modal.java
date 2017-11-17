@@ -29,7 +29,7 @@ public class Modal {
 		this.modalHandler = modalHandler;
 		
 		if (this.open())
-			openModals.put(this.uuid, this);
+			openModals.put(this.playerUuid, this);
 	}
 	
 	
@@ -46,7 +46,7 @@ public class Modal {
 		BookMeta bookMeta = (BookMeta) Bukkit.getItemFactory().getItemMeta(Material.WRITTEN_BOOK);
 		
 		List<TextComponent> textComponents = new ArrayList<TextComponent>();
-		textComponents.add(this.modalHandler.constructOptions());
+		textComponents.add(this.modalHandler.constructModal());
 		
 		List<IChatBaseComponent> pages = new ArrayList<IChatBaseComponent>();
 		pages.add(BookComposer.createPage(textComponents));
@@ -58,6 +58,8 @@ public class Modal {
 			return false;
 
 		BookComposer.openBook(player, bookMeta);
+		
+		this.modalHandler.onOpen(player);
 		return true;
 	}
 	
