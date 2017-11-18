@@ -24,22 +24,33 @@ public interface ModalHandler {
 		player.playSound(player.getLocation(), Sound.ENTITY_ENDERDRAGON_FLAP, 1, 1);
 	}
 	
-	default TextComponent getText(String key) {
+	default String getDisplay(String key) {
+		switch(key.toUpperCase()) {
+			case "QUESTION":
+				return "Are you sure you want to continue?";
+			case "HELPTEXT":
+				return "Click on one of the options displayed above.";
+			case "DIVIDER":
+				return "⥼⟝ ᚛" + ChatColor.DARK_PURPLE + " ⁕" + ChatColor.BLACK + " ᚜ ⟞⥽";
+		}
+		
+		return "";
+	}
+	
+	default TextComponent getTextComponent(String key) {
 		TextComponent textComponent = new TextComponent();
 		
 		switch(key.toUpperCase()) {
-			case "HEADER":
-				textComponent.setText(BookComposer.center("Confirmation"));
-			break;
 			case "QUESTION":
-				textComponent.setText(BookComposer.center("Are you sure you want to continue?") + "\n\n");
+				textComponent.setText(BookComposer.center(this.getDisplay(key)) + "\n\n");
 			break;
 			case "HELPTEXT":
-				textComponent.setText("\n\n" + BookComposer.center(ChatColor.ITALIC + "Click on one of the options displayed above.") + "\n\n");
+				textComponent.setText("\n\n" + BookComposer.center(this.getDisplay(key)) + "\n\n");
+				textComponent.setItalic(true);
 				textComponent.setColor(ChatColor.GRAY);
 			break;
 			case "DIVIDER":
-				textComponent.setText(BookComposer.center("⥼⟝ ᚛" + ChatColor.DARK_PURPLE + " ⁕" + ChatColor.BLACK + " ᚜ ⟞⥽"));
+				textComponent.setText(BookComposer.center(this.getDisplay(key)));
 				textComponent.setColor(ChatColor.BLACK);
 			break;
 		}
@@ -64,6 +75,8 @@ public interface ModalHandler {
 	default TextComponent constructOption(String display, String value) {
 		TextComponent textComponent = new TextComponent(display);
 		
+		System.out.println(display);
+		
 		textComponent.setColor(ChatColor.BLACK);
 		textComponent.setItalic(true);
 		textComponent.setClickEvent(new ClickEvent(Action.RUN_COMMAND, "/finishmodal " + value.toUpperCase()));
@@ -73,14 +86,12 @@ public interface ModalHandler {
 
 	default List<TextComponent> constructModal() {
 		TextComponent textComponent = new TextComponent();
-
-		textComponent.addExtra(this.getText("HEADER"));
-		textComponent.addExtra(this.getText("DIVIDER"));
-		textComponent.addExtra(this.getText("QUESTION"));
+		
+		textComponent.addExtra(this.getTextComponent("QUESTION"));
 		textComponent.addExtra(this.constructOption(BookComposer.centerAndReplace("⋙ Confirm ⋙", "⋙ Confirm"), "CONFIRM"));
-		textComponent.addExtra(this.getText("DIVIDER"));
+		textComponent.addExtra(this.getTextComponent("DIVIDER"));
 		textComponent.addExtra(this.constructOption(BookComposer.centerAndReplace("⋙ Cancel ⋙", "⋙ Cancel"), "CANCEL"));
-		textComponent.addExtra(this.getText("HELPTEXT"));
+		textComponent.addExtra(this.getTextComponent("HELPTEXT"));
 		
 		return Arrays.asList(textComponent);
 	}

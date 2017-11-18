@@ -8,28 +8,46 @@ import org.bukkit.inventory.meta.BookMeta;
 
 import com.desle.bookcomposer.BookComposer;
 
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.server.v1_12_R1.IChatBaseComponent;
 
-public class QuestModalHandler implements ModalHandler {
+public abstract class QuestModalHandler implements ModalHandler {
 
-	@Override
-	public void callback(String result) {}
+	public abstract void callback(String result);
 	
 	@Override
-	public TextComponent getText(String key) {
+	public String getDisplay(String key) {
+		switch(key) {
+			case "HEADER":
+				return "Quest";
+			case "QUESTION":
+				return "Do you want to accept this quest?";
+		}
+		
+		return ModalHandler.super.getDisplay(key);
+	}
+	
+	@Override
+	public TextComponent getTextComponent(String key) {
 		TextComponent textComponent = new TextComponent();
 		
 		switch (key.toUpperCase()) {
 			case "HEADER":
-				textComponent.setText(BookComposer.center("Quest"));
+				textComponent.setText(BookComposer.center(BookComposer.center(this.getDisplay(key))));
 				return textComponent;
 			case "QUESTION":
-				textComponent.setText(BookComposer.center("Do you want to accept this quest?") + "\n\n");
+				textComponent.setText(BookComposer.center(BookComposer.center(this.getDisplay(key))) + "\n\n");
+				return textComponent;
+			case "TITLE":
+				textComponent.setText("\n" + BookComposer.center(this.getDisplay(key)));
+				return textComponent;
+			case "DESCRIPTION":
+				textComponent.setText(BookComposer.divider(ChatColor.UNDERLINE, ' ') + "\n" + this.getDisplay(key));
 				return textComponent;
 		}
 		
-		return ModalHandler.super.getText(key);
+		return ModalHandler.super.getTextComponent(key);
 	}
 	
 	@Override
@@ -39,10 +57,10 @@ public class QuestModalHandler implements ModalHandler {
 		List<IChatBaseComponent> pages = new ArrayList<IChatBaseComponent>();
 		
 		TextComponent page = new TextComponent();
-		page.addExtra(this.getText("HEADER"));
-		page.addExtra(this.getText("DIVIDER"));
-		page.addExtra(this.getText("TITLE"));
-		page.addExtra(this.getText("DESCRIPTION"));
+		page.addExtra(this.getTextComponent("HEADER"));
+		page.addExtra(this.getTextComponent("DIVIDER"));
+		page.addExtra(this.getTextComponent("TITLE"));
+		page.addExtra(this.getTextComponent("DESCRIPTION"));
 		
 		pages.add(BookComposer.createPage(Arrays.asList(page)));
 		
@@ -55,11 +73,11 @@ public class QuestModalHandler implements ModalHandler {
 	public List<TextComponent> constructModal() {
 		TextComponent textComponent = new TextComponent();
 		
-		textComponent.addExtra(this.getText("QUESTION"));
+		textComponent.addExtra(this.getTextComponent("QUESTION"));
 		textComponent.addExtra(this.constructOption(BookComposer.centerAndReplace("⋙ Accept ⋙", "⋙ Accept"), "ACCEPT"));
-		textComponent.addExtra(this.getText("DIVIDER"));
+		textComponent.addExtra(this.getTextComponent("DIVIDER"));
 		textComponent.addExtra(this.constructOption(BookComposer.centerAndReplace("⋙ Decline ⋙", "⋙ Decline"), "DECLINE"));
-		textComponent.addExtra(this.getText("HELPTEXT"));
+		textComponent.addExtra(this.getTextComponent("HELPTEXT"));
 		
 		return Arrays.asList(textComponent);
 	}
