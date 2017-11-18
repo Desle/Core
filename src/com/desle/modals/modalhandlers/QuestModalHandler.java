@@ -74,9 +74,9 @@ public abstract class QuestModalHandler implements ModalHandler {
 		TextComponent textComponent = new TextComponent();
 		
 		textComponent.addExtra(this.getTextComponent("QUESTION"));
-		textComponent.addExtra(this.constructOption(BookComposer.centerAndReplace("⋙ Accept ⋙", "⋙ Accept"), "ACCEPT"));
+		textComponent.addExtra(this.constructOption(BookComposer.centerAndReplace("⋙ Accept ⋙", "⋙ Accept"), "true"));
 		textComponent.addExtra(this.getTextComponent("DIVIDER"));
-		textComponent.addExtra(this.constructOption(BookComposer.centerAndReplace("⋙ Decline ⋙", "⋙ Decline"), "DECLINE"));
+		textComponent.addExtra(this.constructOption(BookComposer.centerAndReplace("⋙ Decline ⋙", "⋙ Decline"), "false"));
 		textComponent.addExtra(this.getTextComponent("HELPTEXT"));
 		
 		return Arrays.asList(textComponent);

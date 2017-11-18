@@ -6,11 +6,11 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.BookMeta;
 
 import com.desle.bookcomposer.BookComposer;
+import com.desle.sound.SoundType;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -21,7 +21,7 @@ import net.md_5.bungee.api.chat.ClickEvent.Action;
 public interface ModalHandler {
 	
 	default void onOpen(Player player) {
-		player.playSound(player.getLocation(), Sound.ENTITY_ENDERDRAGON_FLAP, 1, 1);
+		SoundType.MODAL_OPEN.playFor(player);
 	}
 	
 	default String getDisplay(String key) {
@@ -75,8 +75,6 @@ public interface ModalHandler {
 	default TextComponent constructOption(String display, String value) {
 		TextComponent textComponent = new TextComponent(display);
 		
-		System.out.println(display);
-		
 		textComponent.setColor(ChatColor.BLACK);
 		textComponent.setItalic(true);
 		textComponent.setClickEvent(new ClickEvent(Action.RUN_COMMAND, "/finishmodal " + value.toUpperCase()));
@@ -88,9 +86,9 @@ public interface ModalHandler {
 		TextComponent textComponent = new TextComponent();
 		
 		textComponent.addExtra(this.getTextComponent("QUESTION"));
-		textComponent.addExtra(this.constructOption(BookComposer.centerAndReplace("⋙ Confirm ⋙", "⋙ Confirm"), "CONFIRM"));
+		textComponent.addExtra(this.constructOption(BookComposer.centerAndReplace("⋙ Confirm ⋙", "⋙ Confirm"), "true"));
 		textComponent.addExtra(this.getTextComponent("DIVIDER"));
-		textComponent.addExtra(this.constructOption(BookComposer.centerAndReplace("⋙ Cancel ⋙", "⋙ Cancel"), "CANCEL"));
+		textComponent.addExtra(this.constructOption(BookComposer.centerAndReplace("⋙ Cancel ⋙", "⋙ Cancel"), "false"));
 		textComponent.addExtra(this.getTextComponent("HELPTEXT"));
 		
 		return Arrays.asList(textComponent);
