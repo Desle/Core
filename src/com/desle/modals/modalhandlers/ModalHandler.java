@@ -1,97 +1,94 @@
 package com.desle.modals.modalhandlers;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.BookMeta;
 
-import com.desle.bookcomposer.BookComposer;
+import com.desle.books.BookComposer;
 import com.desle.sound.SoundType;
+import com.desle.textformatter.LineSize;
+import com.desle.textformatter.TextFormatter;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.minecraft.server.v1_12_R1.IChatBaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ClickEvent.Action;
 
 public interface ModalHandler {
-	
+
+	/** Predefined for when the modal opens*/
 	default void onOpen(Player player) {
 		SoundType.MODAL_OPEN.playFor(player);
 	}
+
 	
-	default String getDisplay(String key) {
-		switch(key.toUpperCase()) {
-			case "QUESTION":
-				return "Are you sure you want to continue?";
-			case "HELPTEXT":
-				return "Click on one of the options displayed above.";
-			case "DIVIDER":
-				return "⥼⟝ ᚛" + ChatColor.DARK_PURPLE + " ⁕" + ChatColor.BLACK + " ᚜ ⟞⥽";
-		}
-		
-		return "";
+	/*
+	 * Predefined textComponents that can be changed for each modal instance
+	 */
+	default String getQuestion() {
+		return "Are you sure you want to continue?";
 	}
 	
-	default TextComponent getTextComponent(String key) {
-		TextComponent textComponent = new TextComponent();
-		
-		switch(key.toUpperCase()) {
-			case "QUESTION":
-				textComponent.setText(BookComposer.center(this.getDisplay(key)) + "\n\n");
-			break;
-			case "HELPTEXT":
-				textComponent.setText("\n\n" + BookComposer.center(this.getDisplay(key)) + "\n\n");
-				textComponent.setItalic(true);
-				textComponent.setColor(ChatColor.GRAY);
-			break;
-			case "DIVIDER":
-				textComponent.setText(BookComposer.center(this.getDisplay(key)));
-				textComponent.setColor(ChatColor.BLACK);
-			break;
-		}
-		
-		return textComponent;
+	default String getHelpText() {
+		return "Click on one of the options displayed above.";
 	}
 	
-	default BookMeta constructBookMeta() {
-		BookMeta bookMeta = (BookMeta) Bukkit.getItemFactory().getItemMeta(Material.WRITTEN_BOOK);		
-		
-		List<TextComponent> textComponents = new ArrayList<TextComponent>();
-		textComponents.addAll(this.constructModal());
-		
-		List<IChatBaseComponent> pages = new ArrayList<IChatBaseComponent>();
-		pages.add(BookComposer.createPage(textComponents));
-		
-		bookMeta = BookComposer.addPages(bookMeta, pages, 0);
-		
-		return bookMeta;
+	default String getDivider() {
+		return ChatColor.BLACK + "⥼⟝ ᚛" + ChatColor.GOLD + " ⁕" + ChatColor.BLACK + " ᚜ ⟞⥽";
 	}
 	
-	default TextComponent constructOption(String display, String value) {
-		TextComponent textComponent = new TextComponent(display);
-		
-		textComponent.setColor(ChatColor.BLACK);
-		textComponent.setItalic(true);
-		textComponent.setClickEvent(new ClickEvent(Action.RUN_COMMAND, "/finishmodal " + value.toUpperCase()));
-		
-		return textComponent;
+	default String getHeader() {
+		return "Confirmation";
+	}
+	
+	default String[] getOptions() {
+		return new String[]{"Confirm", "Cancel"};
 	}
 
-	default List<TextComponent> constructModal() {
-		TextComponent textComponent = new TextComponent();
+	
+	/* Returns clickable textComponents in 1 that executes /finishmodal <answer>*/
+	default TextComponent constructOptions(String[] options) {
+		TextFormatter bookComposer = new TextFormatter(LineSize.BOOK);		
+		TextComponent component = new TextComponent();
 		
-		textComponent.addExtra(this.getTextComponent("QUESTION"));
-		textComponent.addExtra(this.constructOption(BookComposer.centerAndReplace("⋙ Confirm ⋙", "⋙ Confirm"), "true"));
-		textComponent.addExtra(this.getTextComponent("DIVIDER"));
-		textComponent.addExtra(this.constructOption(BookComposer.centerAndReplace("⋙ Cancel ⋙", "⋙ Cancel"), "false"));
-		textComponent.addExtra(this.getTextComponent("HELPTEXT"));
+		for (int x = 0; x < options.length; x++) {
+			String option = options[x];
+			TextComponent optionComponent = new TextComponent(bookComposer.centerAndReplace(options[0], option));
+			optionComponent.setClickEvent(new ClickEvent(Action.RUN_COMMAND, "/finishmodal " + x));
+			optionComponent.setItalic(true);
+			component.addExtra(optionComponent);
+			
+			if (x != options.length - 1) 
+				component.addExtra(new TextComponent(bookComposer.center(this.getDivider())));
+		}
 		
-		return Arrays.asList(textComponent);
+		return component;
+	}
+
+	
+	/* Returns BookMeta used for the modal*/
+	default BookMeta constructModal() {
+		TextFormatter bookComposer = new TextFormatter(LineSize.BOOK);
+		BookMeta bookMeta = (BookMeta) Bukkit.getItemFactory().getItemMeta(Material.WRITTEN_BOOK);
+		
+		TextComponent component = new TextComponent();
+		TextComponent currentComponent = new TextComponent();
+		
+		currentComponent = new TextComponent(bookComposer.center(this.getHeader()));
+		currentComponent.setColor(ChatColor.DARK_GRAY);
+		component.addExtra(currentComponent);
+		component.addExtra(new TextComponent(bookComposer.center(this.getDivider()) + "\n"));
+		currentComponent = new TextComponent(bookComposer.center(this.getQuestion()) + "\n");
+		currentComponent.setColor(ChatColor.BLACK);
+		component.addExtra(currentComponent);
+		component.addExtra(this.constructOptions(this.getOptions()));
+		currentComponent = new TextComponent("\n" + bookComposer.center(this.getHelpText()));
+		currentComponent.setColor(ChatColor.GRAY);
+		component.addExtra(currentComponent);
+		
+		bookMeta = BookComposer.addPage(bookMeta, component, 0);
+		return bookMeta;
 	}
 	
 	abstract void callback(String result);

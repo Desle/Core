@@ -8,7 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.BookMeta;
 
-import com.desle.bookcomposer.BookComposer;
+import com.desle.books.BookComposer;
 import com.desle.modals.modalhandlers.ModalHandler;
 
 public class Modal {
@@ -38,7 +38,7 @@ public class Modal {
 	
 	
 	public boolean open() {
-		BookMeta bookMeta = modalHandler.constructBookMeta();
+		BookMeta bookMeta = modalHandler.constructModal();
 		
 		Player player = Bukkit.getPlayer(this.playerUuid);
 		if (player == null || !player.isOnline())

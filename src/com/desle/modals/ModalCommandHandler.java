@@ -1,11 +1,9 @@
-package com.desle.modals.modalhandlers;
+package com.desle.modals;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import com.desle.modals.Modal;
 
 public class ModalCommandHandler implements CommandExecutor {
 

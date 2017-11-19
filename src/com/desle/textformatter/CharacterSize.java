@@ -1,4 +1,4 @@
-package com.desle.bookcomposer;
+package com.desle.textformatter;
 
 public enum CharacterSize {
     A('A', 3),
@@ -101,14 +101,17 @@ public enum CharacterSize {
     UTF_3('⟝', 4),
     UTF_4('⟞', 4),
     UTF_5('⋙', 2),
-    UTF_6('⁕', 2),
-    UTF_7('᚛', 4),
-    UTF_8('᚜', 4),
+    UTF_6('⋘', 2),
+    UTF_7('⁕', 2),
+    UTF_8('᚛', 4),
+    UTF_9('᚜', 4),
+    UTF_10('☠', 2.5),
+    UTF_11('✕', 3),
+    UTF_12('✔', 4),
     DEFAULT('a', 3);
     
     private char character;
     private double size;
-    private static double lineSize = 58;
     
     CharacterSize(char character, double size) {
         this.character = character;
@@ -127,10 +130,6 @@ public enum CharacterSize {
         if(this == CharacterSize.SPACE) return this.getSize();
         return (this.size + 1);
     }
-    
-    public static double getLineSize() {
-    	return lineSize;
-    }  
     
     public static CharacterSize getCharacterSize(char c){
         for(CharacterSize dFI : CharacterSize.values()){
