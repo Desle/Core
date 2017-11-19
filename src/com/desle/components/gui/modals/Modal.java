@@ -1,4 +1,4 @@
-package com.desle.modals;
+package com.desle.components.gui.modals;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,8 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.BookMeta;
 
-import com.desle.books.BookComposer;
-import com.desle.modals.modalhandlers.ModalHandler;
+import com.desle.utilities.books.BookComposer;
 
 public class Modal {
 	

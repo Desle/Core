@@ -1,14 +1,14 @@
-package com.desle.modals.modalhandlers;
+package com.desle.components.gui.modals;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.BookMeta;
 
-import com.desle.books.BookComposer;
-import com.desle.sound.SoundType;
-import com.desle.textformatter.LineSize;
-import com.desle.textformatter.TextFormatter;
+import com.desle.components.sound.SoundType;
+import com.desle.utilities.books.BookComposer;
+import com.desle.utilities.text.formatter.LineSize;
+import com.desle.utilities.text.formatter.TextFormatter;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;

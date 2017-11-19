@@ -1,4 +1,4 @@
-package com.desle.modals;
+package com.desle.components.gui.modals;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

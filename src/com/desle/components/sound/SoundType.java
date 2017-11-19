@@ -1,4 +1,4 @@
-package com.desle.sound;
+package com.desle.components.sound;
 
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;

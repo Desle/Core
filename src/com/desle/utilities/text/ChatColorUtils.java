@@ -1,4 +1,4 @@
-package com.desle.colors;
+package com.desle.utilities.text;
 
 import java.util.ArrayList;
 import java.util.List;

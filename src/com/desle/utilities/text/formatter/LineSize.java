@@ -1,4 +1,4 @@
-package com.desle.textformatter;
+package com.desle.utilities.text.formatter;
 
 
 public enum LineSize {

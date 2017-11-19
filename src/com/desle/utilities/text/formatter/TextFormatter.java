@@ -1,11 +1,11 @@
-package com.desle.textformatter;
+package com.desle.utilities.text.formatter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.desle.colors.ChatColorUtils;
+import com.desle.utilities.text.ChatColorUtils;
 
 import net.md_5.bungee.api.ChatColor;
 
