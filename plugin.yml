@@ -1,5 +1,5 @@
 name: MCore
-main: com.desle.main.Main
+main: com.desle.Main
 author: Desle
 version: 1.0
 commands:

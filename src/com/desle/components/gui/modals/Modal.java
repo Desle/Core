@@ -8,7 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.BookMeta;
 
-import com.desle.utilities.books.BookComposer;
+import com.desle.utilities.items.books.BookComposer;
 
 public class Modal {
 	

@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.BookMeta;
 
 import com.desle.components.sound.SoundType;
-import com.desle.utilities.books.BookComposer;
+import com.desle.utilities.items.books.BookComposer;
 import com.desle.utilities.text.formatter.LineSize;
 import com.desle.utilities.text.formatter.TextFormatter;
 

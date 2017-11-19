@@ -1,4 +1,4 @@
-package com.desle.utilities.books;
+package com.desle.utilities.items.books;
 
 import java.util.List;
 
@@ -35,7 +35,7 @@ public class BookComposer {
 		player.getInventory().setItem(slot, itemStack);
 	
 	   ByteBuf buf = Unpooled.buffer(256);
-	   buf.setByte(0, (byte)0);
+	   buf.setByte(0, (byte) 0);
 	   buf.writerIndex(1);
 	
 	    PacketPlayOutCustomPayload packet = new PacketPlayOutCustomPayload("MC|BOpen", new PacketDataSerializer(buf));
