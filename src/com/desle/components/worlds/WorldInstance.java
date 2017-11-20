@@ -11,6 +11,7 @@ import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.WorldCreator;
 import org.bukkit.entity.Player;
 import org.fusesource.jansi.Ansi.Color;
 
@@ -38,6 +39,7 @@ public abstract class WorldInstance {
 	
 	
 	
+	
 	private void copyWorldFile(World world) {
 		setAvailable(false);
 		
@@ -54,7 +56,8 @@ public abstract class WorldInstance {
 					FileUtils.copyDirectory(from, to, new FileFilter() {
 					    public boolean accept(File pathname) {
 					        String name = pathname.getName();
-					        return (!name.equalsIgnoreCase("session.lock"));
+					        
+					        return (!name.equalsIgnoreCase("session.lock") && !name.equalsIgnoreCase("uid.dat"));
 					    }
 					}, true);
 				} catch (IOException e) {
@@ -62,22 +65,45 @@ public abstract class WorldInstance {
 				}
 				
 				setAvailable(true);
-				onReady(worldName);
 			}
 		});
 		
 	}
 	
-	public void setAvailable(boolean state) {
-		this.available = state;
-	}
 	
-	public boolean isAvailable() {
-		if (this.available && this.world == null)
+	
+	
+	
+	public boolean isnItializedWorld() {
+		if (this.world == null)
 			return false;
 		
 		return true;
 	}
+	
+	public boolean initializeWorld() {
+		if (!this.available)
+			return false;
+		
+		this.world = Bukkit.createWorld(new WorldCreator(this.worldName));
+		return true;
+	}
+	
+	private void setAvailable(boolean state) {
+		this.available = state;
+	}
+	
+	public boolean isAvailable() {
+		if (this.available)
+			return true;
+		
+		return false;
+	}
+	
+	
+	
+	
+	
 	
 	public void unloadPlayerToWorld(Location location) {
 		if (location == null)
@@ -90,6 +116,9 @@ public abstract class WorldInstance {
 	
 	public boolean delete() {
 		this.setAvailable(false);
+		
+		if (this.world == null)
+			return false;
 		
 		if (this.world.getPlayers().size() > 0)
 			this.unloadPlayerToWorld(null);
@@ -123,8 +152,4 @@ public abstract class WorldInstance {
 		return this.world;
 	}
 	
-	
-	
-	
-	public abstract void onReady(String worldName);
 }

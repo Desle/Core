@@ -1,17 +1,20 @@
 package com.desle;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.WorldCreator;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.fusesource.jansi.Ansi.Color;
 
 import com.desle.components.gui.modals.ModalCommandHandler;
 import com.desle.components.worlds.WorldInstance;
-
-import net.md_5.bungee.api.ChatColor;
+import com.desle.plugins.dungeons.Dungeon;
 
 
 public class Main extends JavaPlugin implements Listener {
@@ -36,34 +39,58 @@ public class Main extends JavaPlugin implements Listener {
 	@Override
 	public void onDisable() {
 		for (WorldInstance worldInstance : WorldInstance.list) {
-			worldInstance.delete();
+			System.out.println(worldInstance.getWorldName() + Color.RED + " removal success: " + worldInstance.delete());
 		}
 	}
 	
 	
 	
 	@EventHandler
-	public void onKill(EntityDeathEvent e) {
-		Player player = e.getEntity().getKiller();
+	public void enterPortal(PlayerPortalEvent e) {
+		e.setCancelled(true);
 		
-		player.sendMessage("test");
+		
+		e.getPlayer().sendMessage("entering");
+		
+		if (!Dungeon.active.containsKey(e.getFrom().getBlock().getLocation()))
+			return;
+		
+		e.getPlayer().sendMessage("dungeon found");
+		
+		Dungeon dungeon = Dungeon.active.get(e.getFrom().getBlock().getLocation());
+		
+		if (!dungeon.getWorldInstance().initializeWorld()) {
+			e.getPlayer().sendMessage("The dungeon is still loading. Please try again.");
+			return;
+		}
+		
+		e.getPlayer().teleport(dungeon.getWorldInstance().getWorld().getSpawnLocation());
+	}
+	
+	
+	@EventHandler
+	public void onKill(EntityDeathEvent e) {
+		
+		if (e.getEntity() instanceof Player)
+			return;
+		
+		if (e.getEntity().getKiller() == null)
+			return;
+		
+		Player player = e.getEntity().getKiller();
 		
 		World world = Bukkit.getWorld("world_template");
 		
-		new WorldInstance(world) {
-			
-			@Override
-			public void onReady(String worldName) {
-				World world = Bukkit.getWorld(worldName);
-				
-				if (world == null)
-					return;
-
-				Bukkit.broadcastMessage(worldName + ChatColor.GRAY + " created");
-				
-				player.teleport(world.getSpawnLocation());
-			}
-		};
+		
+		player.sendMessage("test");
+		
+		if (world == null)
+			world = Bukkit.createWorld(new WorldCreator("world_template"));
+		
+		e.getEntity().getLocation().getBlock().setType(Material.PORTAL);
+		
+		new Dungeon(new WorldInstance(world) {
+		}, e.getEntity().getLocation().getBlock().getLocation());
 	}
 	
 	
