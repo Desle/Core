@@ -24,7 +24,7 @@ public class Main extends JavaPlugin implements Listener {
 	@Override
 	public void onEnable() {
 		initializeCommands();
-		Bukkit.getPluginManager().registerEvents(this, this);
+		Bukkit.getPluginManager().registerEvents(Main.getPlugin(), this);
 		
 		
 		for (Player player : Bukkit.getOnlinePlayers()) {
