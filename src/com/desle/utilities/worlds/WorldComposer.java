@@ -69,6 +69,7 @@ public class WorldComposer {
 	}
 	
 	
+	
 	public static boolean deleteWorld(File path) {
 		if (path == null)
 			return false;
