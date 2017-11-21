@@ -1,155 +1,85 @@
 package com.desle.components.worlds;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.WorldCreator;
-import org.bukkit.entity.Player;
-import org.fusesource.jansi.Ansi.Color;
+import org.bukkit.scheduler.BukkitScheduler;
 
 import com.desle.Main;
+import com.desle.utilities.worlds.WorldComposer;
 
 public abstract class WorldInstance {
+	public abstract void onFinish();
 	
 	public static List<WorldInstance> list = new ArrayList<WorldInstance>();
-	
-	private UUID uuid;
-	private String worldName;
-	private String originalWorldName;
-	private World world;
-	private boolean available;
+		
+	private String templateName;
+	private String instanceName;
 	
 	public WorldInstance(World world) {
-		this.uuid = UUID.randomUUID();
-		this.originalWorldName = world.getName();
-		this.worldName = this.originalWorldName + "_" + this.uuid.toString();
+		if (world == null)
+			return;
 		
-		copyWorldFile(world);
+		this.templateName = world.getName();
+		this.instanceName = this.templateName + "_instance_" + UUID.randomUUID().toString();
+		
+		WorldComposer.unloadWorld(this.templateName, false);
+		
+		File instanceFile = WorldComposer.getWorldFile(this.instanceName);
+		
+		if (instanceFile != null && instanceFile.exists()) {
+			WorldComposer.deleteWorld(instanceFile);
+		}
+
+		createInstance();
 		
 		list.add(this);
 	}
 	
 	
-	
-	
-	private void copyWorldFile(World world) {
-		setAvailable(false);
+	public void createInstance() {
+		String name = this.templateName;
+		File from = WorldComposer.getWorldFile(this.templateName);
+		File to = new File(Bukkit.getWorldContainer(), this.instanceName);
 		
-		File from = world.getWorldFolder();
-		File to = new File(Bukkit.getWorldContainer(), this.worldName);
-		String worldName = this.worldName;
+		if (from == null || !from.exists())
+			return;
 		
-		System.out.println(worldName);
+		WorldComposer.unloadWorld(templateName, false);
 
-		Bukkit.getScheduler().runTaskAsynchronously(Main.getPlugin(), new Runnable() {
+
+		Main main = Main.getPlugin();
+		BukkitScheduler scheduler = Bukkit.getScheduler();
+		scheduler.runTaskAsynchronously(main, new Runnable() {
+			
 			@Override
 			public void run() {
-				try {
-					FileUtils.copyDirectory(from, to, new FileFilter() {
-					    public boolean accept(File pathname) {
-					        String name = pathname.getName();
-					        
-					        return (!name.equalsIgnoreCase("session.lock") && !name.equalsIgnoreCase("uid.dat"));
-					    }
-					}, true);
-				} catch (IOException e) {
-					System.out.println(Color.RED + from.getName() + " could not be copied and caused an IOException.");
-				}
-				
-				setAvailable(true);
+				WorldComposer.copyWorld(from, to);
+
+				scheduler.runTask(main, new Runnable() {
+					@Override
+					public void run() {
+						WorldComposer.loadWorld(templateName);
+						onFinish();
+					}
+				});
 			}
+			
 		});
-		
 	}
 	
-	
-	
-	
-	
-	public boolean isnItializedWorld() {
-		if (this.world == null)
-			return false;
-		
-		return true;
-	}
-	
-	public boolean initializeWorld() {
-		if (!this.available)
-			return false;
-		
-		this.world = Bukkit.createWorld(new WorldCreator(this.worldName));
-		return true;
-	}
-	
-	private void setAvailable(boolean state) {
-		this.available = state;
-	}
-	
-	public boolean isAvailable() {
-		if (this.available)
-			return true;
-		
-		return false;
-	}
-	
-	
-	
-	
-	
-	
-	public void unloadPlayerToWorld(Location location) {
-		if (location == null)
-			location = Bukkit.getWorlds().get(0).getSpawnLocation();
-		
-		for (Player player : this.world.getPlayers()) {
-			player.teleport(location);
-		}
-	}
-	
-	public boolean delete() {
-		this.setAvailable(false);
-		
-		if (this.world == null)
-			return false;
-		
-		if (this.world.getPlayers().size() > 0)
-			this.unloadPlayerToWorld(null);
-		
-		File file = Bukkit.getWorld(this.worldName).getWorldFolder();
-		Bukkit.unloadWorld(this.worldName, false);
-		
-		if (file.delete())
-			return true;
-		
-		return false;
-	}
-	
-	
-	
-	
-	
-	public String getWorldName() {
-		return this.worldName;
-	}
-	
-	public String getOriginalWorldName() {
-		return this.originalWorldName;
-	}
-	
-	public UUID getUUID() {
-		return this.uuid;
-	}
 	
 	public World getWorld() {
-		return this.world;
+		return WorldComposer.loadWorld(this.instanceName);
 	}
 	
+	
+	public void delete() {
+		File file = WorldComposer.getWorldFile(this.instanceName);
+		WorldComposer.deleteWorld(file);
+	}
 }

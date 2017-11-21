@@ -1,20 +1,23 @@
 package com.desle;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.WorldCreator;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.fusesource.jansi.Ansi.Color;
 
+import com.desle.components.gui.modals.Modal;
 import com.desle.components.gui.modals.ModalCommandHandler;
+import com.desle.components.gui.modals.ModalHandler;
+import com.desle.components.sound.SoundType;
+import com.desle.components.worlds.Portal;
 import com.desle.components.worlds.WorldInstance;
 import com.desle.plugins.dungeons.Dungeon;
+import com.desle.utilities.worlds.WorldComposer;
+
+import net.md_5.bungee.api.ChatColor;
 
 
 public class Main extends JavaPlugin implements Listener {
@@ -22,79 +25,74 @@ public class Main extends JavaPlugin implements Listener {
 	
 	public static Main getPlugin() {
 		return (Main) Bukkit.getPluginManager().getPlugin("MCore");
-	}
+	}	
 	
 	@Override
 	public void onEnable() {
 		initializeCommands();
 		Bukkit.getPluginManager().registerEvents(Main.getPlugin(), this);
 		
+		new WorldInstance(WorldComposer.loadWorld("empty_world_template")) {
+			
+			@Override
+			public void onFinish() {				
+				Dungeon dungeon = new Dungeon(ChatColor.RED + "The Abyss",  this);
+				dungeon.setPortal(new Portal(Bukkit.getPlayer("Desle").getLocation()));
+			}
+		};
 		
-		for (Player player : Bukkit.getOnlinePlayers()) {
-			player.sendMessage("why tf not working nib");
-		}
 	}
-	
-	
-	@Override
-	public void onDisable() {
-		for (WorldInstance worldInstance : WorldInstance.list) {
-			System.out.println(worldInstance.getWorldName() + Color.RED + " removal success: " + worldInstance.delete());
-		}
-	}
-	
 	
 	
 	@EventHandler
-	public void enterPortal(PlayerPortalEvent e) {
+	public void portal(PlayerPortalEvent e) {
 		e.setCancelled(true);
 		
+		Player player = e.getPlayer();
+		Location location = e.getFrom().getBlock().getLocation();
 		
-		e.getPlayer().sendMessage("entering");
-		
-		if (!Dungeon.active.containsKey(e.getFrom().getBlock().getLocation()))
+		if (!Portal.mapped.containsKey(location))
 			return;
 		
-		e.getPlayer().sendMessage("dungeon found");
+		Portal portal = Portal.mapped.get(location);
+		Dungeon dungeon = Dungeon.linkedPortals.get(portal);
 		
-		Dungeon dungeon = Dungeon.active.get(e.getFrom().getBlock().getLocation());
-		
-		if (!dungeon.getWorldInstance().initializeWorld()) {
-			e.getPlayer().sendMessage("The dungeon is still loading. Please try again.");
+		if (dungeon == null)
 			return;
+		
+		new Modal(player, new ModalHandler() {
+			
+			@Override
+			public String getHeader() {
+				return dungeon.getName();
+			}
+			
+			@Override
+			public String getQuestion() {
+				return "Are you sure you want to enter this dungeon?";
+			}
+			
+			@Override
+			public void callback(String result) {
+				SoundType.CLICK.playFor(player);
+				
+				switch(result) {
+				case "0":
+					player.teleport(dungeon.getWorldInstance().getWorld().getSpawnLocation());
+					break;
+				}
+			}
+		});
+	}
+	
+	@Override
+	public void onDisable() {		
+		for (WorldInstance worldInstance : WorldInstance.list) {
+			worldInstance.delete();
 		}
-		
-		e.getPlayer().teleport(dungeon.getWorldInstance().getWorld().getSpawnLocation());
 	}
-	
-	
-	@EventHandler
-	public void onKill(EntityDeathEvent e) {
-		
-		if (e.getEntity() instanceof Player)
-			return;
-		
-		if (e.getEntity().getKiller() == null)
-			return;
-		
-		Player player = e.getEntity().getKiller();
-		
-		World world = Bukkit.getWorld("world_template");
-		
-		
-		player.sendMessage("test");
-		
-		if (world == null)
-			world = Bukkit.createWorld(new WorldCreator("world_template"));
-		
-		e.getEntity().getLocation().getBlock().setType(Material.PORTAL);
-		
-		new Dungeon(new WorldInstance(world) {
-		}, e.getEntity().getLocation().getBlock().getLocation());
-	}
-	
 	
 	public void initializeCommands() {
 		getCommand("finishmodal").setExecutor(new ModalCommandHandler());
-	}	
+	}
 }

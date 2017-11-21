@@ -1,40 +1,40 @@
 package com.desle.plugins.dungeons;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.bukkit.Location;
-
+import com.desle.components.worlds.Portal;
 import com.desle.components.worlds.WorldInstance;
 
 public class Dungeon {
 	
-	public static Map<Location, Dungeon> active = new HashMap<Location, Dungeon>();
+	public static Map<Portal, Dungeon> linkedPortals = new HashMap<Portal, Dungeon>();
 	
-	UUID uuid;
-	WorldInstance worldInstance;
-	Location portalLocation;
+	private WorldInstance worldInstance;
+	private UUID uuid;
+	private String name;
 	
-	public Dungeon(WorldInstance worldInstance, Location portalLocation) {
-		this.portalLocation = portalLocation;
+	private int maximumPlayers;
+	private List<UUID> players = new ArrayList<UUID>();
+	private Portal portal;
+	
+	
+	public Dungeon(String name, WorldInstance worldInstance) {
+		this.name = name;
 		this.worldInstance = worldInstance;
 		this.uuid = UUID.randomUUID();
 		
-		active.put(portalLocation, this);
 	}
 	
 	
-	public boolean canEnter() {
-		if (this.worldInstance.isAvailable())
-			return true;
+	public void setPortal(Portal portal) {
+		this.portal = portal;
 		
-		return false;
-	}
-	
-	
-	public Location getPortalLocation() {
-		return this.portalLocation;
+		linkedPortals.put(this.portal, this);
+		this.portal.construct();
 	}
 	
 	
@@ -42,10 +42,27 @@ public class Dungeon {
 		return this.worldInstance;
 	}
 	
+	public UUID getUUID() {
+		return this.uuid;
+	}
 	
-	public void delete() {
-		this.worldInstance.delete();
-		
-		active.remove(this.portalLocation);
+	public int getMaxPlayers() {
+		return this.maximumPlayers;
+	}
+	
+	public List<UUID> getPlayerUUIDS() {
+		return this.players;
+	}
+	
+	public Portal getPortal() {
+		return this.portal;
+	}
+	
+	public String getName() {
+		return this.name;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
 	}
 }
