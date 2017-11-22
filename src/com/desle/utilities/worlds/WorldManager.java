@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.io.FileDeleteStrategy;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -15,8 +14,6 @@ import org.bukkit.entity.Player;
 import org.fusesource.jansi.Ansi.Color;
 
 import com.desle.Main;
-
-import net.minecraft.server.v1_12_R1.RegionFileCache;
 
 public class WorldManager {
 	
@@ -32,6 +29,7 @@ public class WorldManager {
 	private String name;
 	private World world;
 	private File file;
+	private boolean deleteOnUnload;
 	
 	public WorldManager(String name) {
 		this.file = new File(Bukkit.getWorldContainer(), name);
@@ -41,53 +39,59 @@ public class WorldManager {
 	
 	
 	public World getWorld() {
-		
 		if (this.world != null)
 			return this.world;
 		
-		if (fileExists() == null)
+		if (getFile().exists())
 			return null;
 		
 		this.world = Bukkit.getWorld(this.name);
 		if (this.world != null)
 			return this.world;
 		
-		this.world = Bukkit.createWorld(new WorldCreator(this.name));
-		if (this.world != null)
-			return getWorld();
-		
 		return null;
 	}
 	
 	
 	public String getName() {
-		return getWorld().getName();
+		return this.name;
+	}
+	
+	
+	public World load() {
+		if (!getFile().exists())
+			return null;
+		
+		World world = getWorld();
+		
+		if (world != null)
+			return world;
+		
+		return Bukkit.createWorld(new WorldCreator(getName()));
 	}
 	
 	
 	public boolean unload() {
-		if (Bukkit.getWorld(this.name) == null)
-			return true;
-		
-		for (Player player : getWorld().getPlayers()) {
-			player.teleport(Bukkit.getWorlds().get(0).getSpawnLocation());
+		if (getWorld() != null) {
+			for (Player player : getWorld().getPlayers()) {
+				player.teleport(Bukkit.getWorlds().get(0).getSpawnLocation());
+			}
 		}
+
+		if (!this.deleteOnUnload)
+			return Bukkit.unloadWorld(getWorld(), false);
 		
-		return Bukkit.unloadWorld(getWorld(), true);
+		Bukkit.unloadWorld(getName(), false);
+		return delete();
 	}
 	
 	
 	
 	public boolean delete() {
-		if (fileExists() == null)
-			return true;
+		boolean delete = deleteFiles(getFile());
+		unregister();
 		
-		RegionFileCache.a();
-		System.gc();
-		System.gc();
-		FileDeleteStrategy.FORCE.deleteQuietly(file);
-		
-		return deleteFiles(file);
+		return delete;
 	}
 	
 	
@@ -95,6 +99,8 @@ public class WorldManager {
 	private boolean deleteFiles(File path) {		
 		if (path == null)
 			return false;
+
+		System.out.println(path.canWrite());
 		
 	      if(path.exists()) {
 	          File files[] = path.listFiles();
@@ -106,21 +112,33 @@ public class WorldManager {
 	              }
 	          }
 	      }
-	      
+      
 	      return(path.delete());
 	}
 	
 	
-	public void copy(String name, Runnable runnable) {
+	public void deleteOnUnload(boolean deleteOnUnload) {
+		this.deleteOnUnload = deleteOnUnload;
+	}
+	
+	
+	public void copyFrom(String name, Runnable runnable) {
 		
-		WorldManager worldManager = this;
-		WorldManager newWorldManager = get(name);
+		WorldManager worldManager = get(name);
+		WorldManager newWorldManager = this;
 		
-		File from = this.fileExists();
-		File to = newWorldManager.fileExists();
+		worldManager.unload();
 		
-		newWorldManager.unload();
-		newWorldManager.delete();
+		File from = worldManager.getFile();
+		File to = newWorldManager.getFile();
+		
+		if (to.exists()) {
+			newWorldManager.unload();
+			newWorldManager.delete();
+		}
+		
+		if (!from.exists())
+			return;	
 		
 		Main main = Main.getPlugin();
 		Bukkit.getScheduler().runTaskAsynchronously(main, new Runnable() {
@@ -136,7 +154,8 @@ public class WorldManager {
 	
 	
 	private boolean copyFiles(File from, File to) {
-		to.mkdirs();
+		if (!to.exists())
+			to.mkdirs();
 		
 		if (from == null || to == null || !from.exists() || !to.exists())
 			return false;
@@ -159,15 +178,16 @@ public class WorldManager {
 	}
 	
 	
-	public File fileExists() {		
+	public File getFile() {		
 		if (this.file != null && this.file.exists())
 			return this.file;
 		
 		this.file = new File(Bukkit.getWorldContainer(), this.name);
-		if (this.file.exists())
-			return this.file;
-		
-		return null;
+		return this.file;
 	}
 	
+	
+	public void unregister() {
+		list.remove(this);
+	}
 }
