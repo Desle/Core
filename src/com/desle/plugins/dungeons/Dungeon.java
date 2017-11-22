@@ -19,9 +19,12 @@ import com.desle.components.gui.modals.ModalHandler;
 import com.desle.components.holograms.Hologram;
 import com.desle.components.sound.SoundType;
 
+import net.minecraft.server.v1_12_R1.BlockState;
+
 public class Dungeon {
 
 	public static Map<Location, Dungeon> map = new HashMap<Location, Dungeon>();
+	public static List<String> fallingBlockIds = new ArrayList<String>();
 	
 	public static Dungeon getDungeon(Location location) {
 		
@@ -48,6 +51,7 @@ public class Dungeon {
 	
 	private Hologram portalHologram;
 	private Block[] portalBlocks = {};
+	private List<MaterialData> replacedBlocks = new ArrayList<MaterialData>();
 	
 	public Dungeon(String name, int maxPlayers, Location from, Location to) {
 		this.name = name;
@@ -83,16 +87,18 @@ public class Dungeon {
 		double y = this.from.getBlockY();
 		double z = this.from.getBlockZ() + 0.5;
 		
-		Vector from = new Vector(x, y -0.5, z);
-		Vector to  = new Vector(x, y, z);
+		Vector Vfrom = new Vector(x, y -0.5, z);
+		Vector Vto  = new Vector(x, y, z);
 		 
-		Vector vector = to.subtract(from);
+		Vector vector = Vto.subtract(Vfrom);
 		
 		FallingBlock block = this.from.getWorld().spawnFallingBlock(new Location(this.from.getWorld(), x, y -1, z), new MaterialData(Material.PORTAL));
 		block.setVelocity(vector);
+		fallingBlockIds.add(block.getEntityId() + "_");
 
 		block = this.from.getWorld().spawnFallingBlock(new Location(this.from.getWorld(), x, y, z), new MaterialData(Material.PORTAL));
 		block.setVelocity(vector);
+		fallingBlockIds.add(block.getEntityId() + "_");
 	}
 	
 	
@@ -104,14 +110,17 @@ public class Dungeon {
 		
 		this.portalBlocks = new Block[]{this.from.getBlock(), this.from.clone().add(0, 1, 0).getBlock()};
 		for (Block block : this.portalBlocks) {
+			this.replacedBlocks.add(block.getState().getData());
 			block.setType(Material.PORTAL, false);
 		}
 	}
 	
 	
 	public void deletePortal() {		
-		for (Block block : this.portalBlocks) {
-			block.setType(Material.AIR, false);
+		for (int x = 0; x < this.portalBlocks.length; x++) {
+			Block block = this.portalBlocks[x];
+			block.setType(this.replacedBlocks.get(x).getItemType());
+			block.setData(this.replacedBlocks.get(x).getData());
 		}
 		
 		if (this.portalHologram != null)
